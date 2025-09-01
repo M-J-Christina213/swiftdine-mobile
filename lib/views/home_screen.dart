@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:swiftdine_mobile/views/register_scree.dart';
+import 'package:swiftdine_mobile/views/register_screen.dart';
 import 'login_screen.dart'; 
 
 
