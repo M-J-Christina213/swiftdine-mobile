@@ -24,7 +24,7 @@ class _SignupViewState extends State<SignupView> {
 
   void toggleObscure() => setState(() => obscureText = !obscureText);
 
-  final String apiUrl = "http://10.0.2.2:8000/api/register"; // Update if different
+  final String apiUrl = "http://10.0.2.2:8000/api/register"; 
 
   Future<void> handleSignup() async {
     final name = nameController.text.trim();
