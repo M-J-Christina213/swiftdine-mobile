@@ -1,11 +1,9 @@
-// ignore_for_file: use_build_context_synchronously
-
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import '../views/login_screen.dart';
 import '../views/home_screen.dart';
-
+import '../shared/auth_ui.dart';
 class SignupView extends StatefulWidget {
   const SignupView({super.key});
 
@@ -20,11 +18,12 @@ class _SignupViewState extends State<SignupView> {
   final confirmPasswordController = TextEditingController();
 
   bool obscureText = true;
+  bool rememberMe = false;
   bool isLoading = false;
 
-  void toggleObscure() => setState(() => obscureText = !obscureText);
+  final String apiUrl = "http://10.0.2.2:8000/api/register";
 
-  final String apiUrl = "http://10.0.2.2:8000/api/register"; 
+  void toggleObscure() => setState(() => obscureText = !obscureText);
 
   Future<void> handleSignup() async {
     final name = nameController.text.trim();
@@ -33,30 +32,20 @@ class _SignupViewState extends State<SignupView> {
     final confirmPassword = confirmPasswordController.text;
 
     if (name.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
-      showDialog(
-        context: context,
-        builder: (_) => const AlertDialog(
-          title: Text('Error'),
-          content: Text('Please fill in all fields.'),
-        ),
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Please fill in all fields.')),
       );
       return;
     }
 
     if (password != confirmPassword) {
-      showDialog(
-        context: context,
-        builder: (_) => const AlertDialog(
-          title: Text('Error'),
-          content: Text('Passwords do not match.'),
-        ),
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Passwords do not match.')),
       );
       return;
     }
 
-    setState(() {
-      isLoading = true;
-    });
+    setState(() => isLoading = true);
 
     try {
       final response = await http.post(
@@ -70,34 +59,30 @@ class _SignupViewState extends State<SignupView> {
         }),
       );
 
-      setState(() {
-        isLoading = false;
-      });
+      if (!mounted) return;
+      setState(() => isLoading = false);
 
       if (response.statusCode == 200 || response.statusCode == 201) {
         final data = jsonDecode(response.body);
 
         if (data['success'] == true || data['token'] != null) {
-          // Navigate to HomeScreen if registration is successful
           Navigator.pushReplacement(
             context,
             MaterialPageRoute(builder: (_) => const HomeScreen()),
           );
         } else {
-          // Show error message from API
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(content: Text(data['message'] ?? 'Registration failed')),
           );
         }
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Server error, please try again later')),
+          const SnackBar(content: Text('Server error, please try again later.')),
         );
       }
     } catch (e) {
-      setState(() {
-        isLoading = false;
-      });
+      if (!mounted) return;
+      setState(() => isLoading = false);
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error: $e')),
       );
@@ -106,52 +91,46 @@ class _SignupViewState extends State<SignupView> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: const Text('Sign Up')),
-      body: Padding(
-        padding: const EdgeInsets.all(20),
-        child: ListView(
-          children: [
-            const Text(
-              'Create your account',
-              style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold),
-            ),
-            const SizedBox(height: 30),
-            TextField(controller: nameController, decoration: const InputDecoration(labelText: 'Name')),
-            const SizedBox(height: 15),
-            TextField(controller: emailController, decoration: const InputDecoration(labelText: 'Email'), keyboardType: TextInputType.emailAddress),
-            const SizedBox(height: 15),
-            TextField(
-              controller: passwordController,
-              decoration: InputDecoration(
-                labelText: 'Password',
-                suffixIcon: IconButton(icon: Icon(obscureText ? Icons.visibility_off : Icons.visibility), onPressed: toggleObscure),
-              ),
-              obscureText: obscureText,
-            ),
-            const SizedBox(height: 15),
-            TextField(controller: confirmPasswordController, decoration: const InputDecoration(labelText: 'Confirm Password'), obscureText: obscureText),
-            const SizedBox(height: 30),
-            ElevatedButton(
-              onPressed: isLoading ? null : handleSignup,
-              child: Text(isLoading ? 'Signing up...' : 'Sign Up'),
-            ),
-            const SizedBox(height: 20),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                const Text('Already have an account?'),
-                TextButton(
-                  onPressed: () {
-                    Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => const LoginScreen()));
-                  },
-                  child: const Text('Login'),
-                ),
-              ],
-            ),
-          ],
+    return buildAuthUI(
+      context,
+      title: 'Sign Up',
+      buttonText: isLoading ? 'Signing up...' : 'Sign Up',
+      onSubmit: isLoading ? () {} : handleSignup,
+      emailController: emailController,
+      passwordController: passwordController,
+      obscureText: obscureText,
+      toggleObscure: toggleObscure,
+      rememberMe: rememberMe,
+      onRememberChanged: (val) => setState(() => rememberMe = val ?? false),
+      footerText: "Already have an account?",
+      footerActionText: 'Login',
+      onFooterAction: () {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const LoginScreen()),
+        );
+      },
+      extraFields: [
+        TextField(
+          controller: nameController,
+          decoration: const InputDecoration(
+            labelText: 'Full Name',
+            prefixIcon: Icon(Icons.person_outline),
+            border: OutlineInputBorder(),
+          ),
         ),
-      ),
+        const SizedBox(height: 16),
+        TextField(
+          controller: confirmPasswordController,
+          obscureText: obscureText,
+          decoration: const InputDecoration(
+            labelText: 'Confirm Password',
+            prefixIcon: Icon(Icons.lock_outline),
+            border: OutlineInputBorder(),
+          ),
+        ),
+        const SizedBox(height: 16),
+      ],
     );
   }
 }

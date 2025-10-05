@@ -1,3 +1,4 @@
+// shared/auth_ui.dart
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
@@ -17,28 +18,25 @@ Widget buildAuthUI(
   required String footerText,
   required String footerActionText,
   required VoidCallback onFooterAction,
+  List<Widget>? extraFields, // optional extra fields for signup
 }) {
   return Scaffold(
     body: Stack(
       children: [
         Positioned.fill(
           child: Image.network(
-          'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/26/ac/0f/85/salle-du-restaurant-soir.jpg?w=900&h=500&s=1',
-          fit: BoxFit.cover,
-          loadingBuilder: (context, child, loadingProgress) {
-            if (loadingProgress == null) return child;
-            return Center(
-              child: CircularProgressIndicator(),
-            );
-          },
-          errorBuilder: (context, error, stackTrace) {
-            return Center(child: Text('Failed to load image'));
-          },
+            'https://dynamic-media-cdn.tripadvisor.com/media/photo-o/26/ac/0f/85/salle-du-restaurant-soir.jpg?w=900&h=500&s=1',
+            fit: BoxFit.cover,
+            loadingBuilder: (context, child, loadingProgress) {
+              if (loadingProgress == null) return child;
+              return const Center(child: CircularProgressIndicator());
+            },
+            errorBuilder: (context, error, stackTrace) {
+              return const Center(child: Text('Failed to load image'));
+            },
+          ),
         ),
-      ),
-      Positioned.fill(
-        child: Container(color: Colors.black.withOpacity(0.4)),
-      ),
+        Positioned.fill(child: Container(color: Colors.black.withOpacity(0.4))),
         Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(20),
@@ -79,17 +77,19 @@ Widget buildAuthUI(
                     ),
                   ),
                   const SizedBox(height: 16),
+                  // Extra fields for signup (like Name + Confirm Password)
+                  if (extraFields != null) ...extraFields,
+                  // Email field
                   TextField(
                     controller: emailController,
-                    decoration: InputDecoration(
+                    decoration: const InputDecoration(
                       labelText: 'Email Address',
-                      prefixIcon: const Icon(Icons.email_outlined),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      prefixIcon: Icon(Icons.email_outlined),
+                      border: OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 16),
+                  // Password field
                   TextField(
                     controller: passwordController,
                     obscureText: obscureText,
@@ -97,14 +97,10 @@ Widget buildAuthUI(
                       labelText: 'Password',
                       prefixIcon: const Icon(Icons.lock_outline),
                       suffixIcon: IconButton(
-                        icon: Icon(obscureText
-                            ? Icons.visibility_off
-                            : Icons.visibility),
+                        icon: Icon(obscureText ? Icons.visibility_off : Icons.visibility),
                         onPressed: toggleObscure,
                       ),
-                      border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
+                      border: OutlineInputBorder(),
                     ),
                   ),
                   const SizedBox(height: 10),
