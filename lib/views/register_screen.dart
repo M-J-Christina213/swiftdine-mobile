@@ -4,6 +4,7 @@ import 'package:http/http.dart' as http;
 import '../views/login_screen.dart';
 import '../views/home_screen.dart';
 import '../shared/auth_ui.dart';
+
 class SignupView extends StatefulWidget {
   const SignupView({super.key});
 
@@ -14,6 +15,7 @@ class SignupView extends StatefulWidget {
 class _SignupViewState extends State<SignupView> {
   final nameController = TextEditingController();
   final emailController = TextEditingController();
+  final phoneController = TextEditingController();
   final passwordController = TextEditingController();
   final confirmPasswordController = TextEditingController();
 
@@ -28,10 +30,11 @@ class _SignupViewState extends State<SignupView> {
   Future<void> handleSignup() async {
     final name = nameController.text.trim();
     final email = emailController.text.trim();
+    final phone = phoneController.text.trim();
     final password = passwordController.text;
     final confirmPassword = confirmPasswordController.text;
 
-    if (name.isEmpty || email.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
+    if (name.isEmpty || email.isEmpty || phone.isEmpty || password.isEmpty || confirmPassword.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Please fill in all fields.')),
       );
@@ -54,6 +57,7 @@ class _SignupViewState extends State<SignupView> {
         body: jsonEncode({
           "name": name,
           "email": email,
+          "phone": phone,
           "password": password,
           "password_confirmation": confirmPassword,
         }),
@@ -110,27 +114,9 @@ class _SignupViewState extends State<SignupView> {
           MaterialPageRoute(builder: (_) => const LoginScreen()),
         );
       },
-      extraFields: [
-        TextField(
-          controller: nameController,
-          decoration: const InputDecoration(
-            labelText: 'Full Name',
-            prefixIcon: Icon(Icons.person_outline),
-            border: OutlineInputBorder(),
-          ),
-        ),
-        const SizedBox(height: 16),
-        TextField(
-          controller: confirmPasswordController,
-          obscureText: obscureText,
-          decoration: const InputDecoration(
-            labelText: 'Confirm Password',
-            prefixIcon: Icon(Icons.lock_outline),
-            border: OutlineInputBorder(),
-          ),
-        ),
-        const SizedBox(height: 16),
-      ],
+      fullNameController: nameController,
+      phoneController: phoneController,
+      confirmPasswordController: confirmPasswordController,
     );
   }
 }

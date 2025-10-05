@@ -18,7 +18,10 @@ Widget buildAuthUI(
   required String footerText,
   required String footerActionText,
   required VoidCallback onFooterAction,
-  List<Widget>? extraFields, // optional extra fields for signup
+  // optional controllers for signup
+  TextEditingController? fullNameController,
+  TextEditingController? phoneController,
+  TextEditingController? confirmPasswordController,
 }) {
   return Scaffold(
     body: Stack(
@@ -77,9 +80,38 @@ Widget buildAuthUI(
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Extra fields for signup (like Name + Confirm Password)
-                  if (extraFields != null) ...extraFields,
-                  // Email field
+                  // Full Name field (optional)
+                  if (fullNameController != null)
+                    Column(
+                      children: [
+                        TextField(
+                          controller: fullNameController,
+                          decoration: const InputDecoration(
+                            labelText: 'Full Name',
+                            prefixIcon: Icon(Icons.person_outline),
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                    ),
+                  // Phone Number field (optional)
+                  if (phoneController != null)
+                    Column(
+                      children: [
+                        TextField(
+                          controller: phoneController,
+                          keyboardType: TextInputType.phone,
+                          decoration: const InputDecoration(
+                            labelText: 'Phone Number',
+                            prefixIcon: Icon(Icons.phone_outlined),
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                    ),
+                  // Email
                   TextField(
                     controller: emailController,
                     decoration: const InputDecoration(
@@ -89,7 +121,7 @@ Widget buildAuthUI(
                     ),
                   ),
                   const SizedBox(height: 16),
-                  // Password field
+                  // Password
                   TextField(
                     controller: passwordController,
                     obscureText: obscureText,
@@ -103,7 +135,23 @@ Widget buildAuthUI(
                       border: OutlineInputBorder(),
                     ),
                   ),
-                  const SizedBox(height: 10),
+                  const SizedBox(height: 16),
+                  // Confirm Password (optional)
+                  if (confirmPasswordController != null)
+                    Column(
+                      children: [
+                        TextField(
+                          controller: confirmPasswordController,
+                          obscureText: obscureText,
+                          decoration: const InputDecoration(
+                            labelText: 'Confirm Password',
+                            prefixIcon: Icon(Icons.lock_outline),
+                            border: OutlineInputBorder(),
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                      ],
+                    ),
                   if (onRememberChanged != null)
                     Row(
                       children: [
