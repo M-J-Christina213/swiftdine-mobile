@@ -1,29 +1,28 @@
-// models/restaurant.dart
-
-import 'menu_item.dart';
-
 class Restaurant {
-  final String id;
+  final int id;
   final String name;
-  final String imageUrl;
-  final String address;
+  final String location;
+  final String cuisine;
+  final String imagePath;
   final double rating;
-  final String description;
-  final List<String> categories;
-  final List<MenuItem> menu;
-  final List<String> galleryImages;
-  final List<Map<String, dynamic>> reviews;
 
   Restaurant({
     required this.id,
     required this.name,
-    required this.imageUrl,
-    required this.address,
+    required this.location,
+    required this.cuisine,
+    required this.imagePath,
     required this.rating,
-    required this.description,
-    required this.categories,
-    required this.menu,
-    required this.galleryImages,
-    required this.reviews,
   });
+
+  factory Restaurant.fromJson(Map<String, dynamic> json) {
+    return Restaurant(
+      id: json['id'],
+      name: json['name'],
+      location: json['location'],
+      cuisine: json['cuisine'],
+      imagePath: json['image_path'],
+      rating: (json['rating'] as num).toDouble(),
+    );
+  }
 }
