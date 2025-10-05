@@ -44,16 +44,16 @@ class _LoginScreenState extends State<LoginScreen> {
     isLoading = false;
   });
 
- print("Status Code: ${response.statusCode}");
-  print("Response Body: ${response.body}");
+// print("Status Code: ${response.statusCode}");
+//  print("Response Body: ${response.body}");
 
   if (response.statusCode == 200) {
   final data = jsonDecode(response.body);
 
   if (data.containsKey('token')) {
     // Store token if needed (for authenticated requests later)
-    final token = data['token'];
-    print("User logged in, token: $token");
+ //   final token = data['token'];
+   // print("User logged in, token: $token");
 
     Navigator.pushReplacement(
       context,
