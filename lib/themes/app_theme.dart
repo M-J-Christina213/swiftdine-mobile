@@ -50,4 +50,14 @@ class AppTheme {
     colorScheme: ColorScheme.dark().copyWith(secondary: accentColor),
     cardColor: Colors.grey[850],
   );
+
+  // Text Styles
+  static TextStyle get headingStyle =>
+      GoogleFonts.nunito(fontSize: 18, fontWeight: FontWeight.bold, color: headingColor);
+
+  static TextStyle get descriptionStyle =>
+      GoogleFonts.nunito(fontSize: 14, color: descriptionColor);
+
+  static TextStyle get priceStyle =>
+      GoogleFonts.nunito(fontSize: 16, fontWeight: FontWeight.bold, color: primaryColor);
 }
