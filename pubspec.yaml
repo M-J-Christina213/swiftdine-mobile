@@ -41,6 +41,10 @@ dependencies:
   hive_flutter: ^1.1.0
   path_provider: ^2.1.5
   google_fonts: ^6.3.1
+  geolocator: ^10.1.0
+  geocoding: ^4.0.0
+  google_maps_flutter: ^2.5.0
+  shared_preferences: ^2.5.3
 
 dev_dependencies:
   flutter_test:

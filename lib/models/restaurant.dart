@@ -1,28 +1,28 @@
 class Restaurant {
   final int id;
   final String name;
-  final String location;
-  final String cuisine;
-  final String imagePath;
-  final double rating;
+  final String image;
+  final String address;
+  final double latitude;
+  final double longitude;
 
   Restaurant({
     required this.id,
     required this.name,
-    required this.location,
-    required this.cuisine,
-    required this.imagePath,
-    required this.rating,
+    required this.image,
+    required this.address,
+    required this.latitude,
+    required this.longitude,
   });
 
   factory Restaurant.fromJson(Map<String, dynamic> json) {
     return Restaurant(
       id: json['id'],
       name: json['name'],
-      location: json['location'],
-      cuisine: json['cuisine'],
-      imagePath: json['image_path'],
-      rating: (json['rating'] as num).toDouble(),
+      image: json['image'] ?? '',
+      address: json['address'] ?? '',
+      latitude: double.tryParse(json['latitude'].toString()) ?? 0.0,
+      longitude: double.tryParse(json['longitude'].toString()) ?? 0.0,
     );
   }
 }

@@ -1,8 +1,19 @@
 import 'package:flutter/material.dart';
-import 'views/login_screen.dart';
+import 'package:provider/provider.dart';
+import 'themes/app_theme.dart';
+import 'views/widgets/bottom_nav_bar_screen.dart';
+import 'views/providers/cart_provider.dart'; 
 
 void main() {
-  runApp(const MyApp());
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider(create: (_) => ThemeProvider()),
+        ChangeNotifierProvider(create: (_) => CartProvider()), // <-- add CartProvider
+      ],
+      child: const MyApp(),
+    ),
+  );
 }
 
 class MyApp extends StatelessWidget {
@@ -10,13 +21,27 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final themeProvider = Provider.of<ThemeProvider>(context);
+
     return MaterialApp(
-      title: 'Swift Dine',
-      debugShowCheckedModeBanner: false, 
-      theme: ThemeData(
-        primarySwatch: Colors.deepOrange,
-      ),
-      home: const LoginScreen(),
+      debugShowCheckedModeBanner: false,
+      title: 'SwiftDine',
+      theme: AppTheme.lightTheme,
+      darkTheme: AppTheme.darkTheme,
+      themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      home: const BottomNavBarScreen(),
     );
+  }
+}
+
+// Provider to manage light/dark theme
+class ThemeProvider with ChangeNotifier {
+  bool _isDarkMode = false;
+
+  bool get isDarkMode => _isDarkMode;
+
+  void toggleTheme() {
+    _isDarkMode = !_isDarkMode;
+    notifyListeners();
   }
 }
