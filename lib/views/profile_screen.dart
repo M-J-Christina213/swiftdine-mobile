@@ -56,6 +56,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             }),
           );
 
+          if (!mounted) return;
           if (response.statusCode == 200) {
             // Successfully updated
             setState(() {
@@ -79,6 +80,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
             );
           }
         } catch (e) {
+          if (!mounted) return;
           setState(() => loading = false);
           ScaffoldMessenger.of(context).showSnackBar(
             SnackBar(

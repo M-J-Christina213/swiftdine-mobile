@@ -1,5 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
+import 'package:swiftdine_mobile/views/login_screen.dart';
+import 'package:swiftdine_mobile/views/orders_screen.dart';
+import 'package:swiftdine_mobile/views/splash_screen.dart';
+import 'package:swiftdine_mobile/views/widgets/profile/address_screen.dart';
+import 'package:swiftdine_mobile/views/widgets/profile/favourites.dart';
+import 'package:swiftdine_mobile/views/widgets/profile/payment_screen.dart';
+import 'package:swiftdine_mobile/views/widgets/profile/settings.dart';
+import 'package:swiftdine_mobile/views/widgets/profile/support_screen.dart';
 import 'themes/app_theme.dart';
 import 'views/widgets/bottom_nav_bar_screen.dart';
 import 'views/providers/cart_provider.dart'; 
@@ -29,6 +37,19 @@ class MyApp extends StatelessWidget {
       theme: AppTheme.lightTheme,
       darkTheme: AppTheme.darkTheme,
       themeMode: themeProvider.isDarkMode ? ThemeMode.dark : ThemeMode.light,
+      initialRoute: '/splash',
+      routes: {
+        '/': (context) => const SplashScreen(),
+        '/splash': (context) => const SplashScreen(),
+        '/login': (context) => const LoginScreen(),
+        '/home': (context) => const BottomNavBarScreen(),
+        '/orders': (context) => const OrderScreen(),
+        '/favorites': (context) => const FavoritesScreen(),
+        '/payments': (context) => const PaymentsScreen(),
+        '/addresses': (context) => const AddressScreen(),
+        '/settings': (context) => const SettingsScreen(),
+        '/support': (context) => const SupportScreen(),
+      },
       home: const BottomNavBarScreen(),
     );
   }

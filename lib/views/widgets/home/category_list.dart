@@ -34,7 +34,7 @@ class _CategoryListState extends State<CategoryList> {
         throw Exception("Failed to load categories");
       }
     } catch (e) {
-      print("Error fetching categories: $e");
+      ("Error fetching categories: $e");
       setState(() {
         isLoading = false;
       });

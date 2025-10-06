@@ -222,7 +222,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                                                   Text(e),
                                                 ],
                                               ))
-                                          .toList()
+                                          
                                     ],
                                   ),
                                 )

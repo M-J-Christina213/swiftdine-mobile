@@ -28,7 +28,7 @@ class _BottomNavBarScreenState extends State<BottomNavBarScreen> {
       birthdayCountdown: Duration(days: 3, hours: 2, minutes: 45),
     ),
     const OrderScreen(),
-    const ProfileScreen(),
+    const ProfileScreen(token: '',),
   ];
 
   @override
