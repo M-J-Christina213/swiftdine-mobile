@@ -5,7 +5,6 @@ import 'package:flutter/material.dart';
 import 'package:intl/intl.dart';
 import 'package:swiftdine_mobile/themes/app_theme.dart';
 
-// Your existing OfferScreen class...
 class OfferScreen extends StatefulWidget {
   final bool isLoggedIn;
   final bool isBirthdayMonth;

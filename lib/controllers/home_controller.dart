@@ -5,7 +5,9 @@ import '../models/destination.dart';
 class HomeController {
   final String apiUrl = "http://10.0.2.2:8000/api/restaurants"; // Localhost API
   bool useApi = true; 
-
+  
+  List<Destination> destinations = [];
+  
   Future<List<Destination>> fetchDestinations() async {
     if (!useApi) {
       // Offline (local) fallback data
