@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:geocoding/geocoding.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:http/http.dart' as http;
+import 'package:swiftdine_mobile/views/widgets/home/restaurant_list.dart';
 import 'dart:convert';
 import 'package:swiftdine_mobile/views/widgets/home/restuarant_card.dart';
 import 'package:swiftdine_mobile/views/cart_screen.dart';
@@ -40,7 +41,7 @@ class _HomeScreenState extends State<HomeScreen> {
   Future<void> _fetchRestaurants() async {
     try {
       final response = await http.get(
-        Uri.parse('http://127.0.0.1:8000/api/restaurants'),
+        Uri.parse('http://10.0.2.2:8000/api/restaurants'),
       );
 
       if (response.statusCode == 200) {
@@ -56,7 +57,7 @@ class _HomeScreenState extends State<HomeScreen> {
       setState(() {
         _isLoading = false;
       });
-      debugPrint('⚠️ Error fetching restaurants: $e');
+      debugPrint(' Error fetching restaurants: $e');
     }
   }
 
@@ -151,21 +152,7 @@ class _HomeScreenState extends State<HomeScreen> {
               // 🔥 Featured Restaurants from backend
               const SectionTitle(title: "Featured Restaurants"),
               const SizedBox(height: 8),
-              _isLoading
-                  ? const Center(child: CircularProgressIndicator())
-                  : _restaurants.isEmpty
-                      ? const Text("No restaurants available.")
-                      : SizedBox(
-                          height: 240,
-                          child: ListView.builder(
-                            scrollDirection: Axis.horizontal,
-                            itemCount: _restaurants.length,
-                            itemBuilder: (context, index) {
-                              final r = _restaurants[index];
-                              return RestaurantCard.fromJson(r);
-                            },
-                          ),
-                        ),
+              const RestaurantList(), 
 
               const SizedBox(height: 24),
               const SectionTitle(title: '🍽️ Find Food Near or Your Destination'),

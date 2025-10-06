@@ -4,8 +4,8 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:swiftdine_mobile/shared/auth_ui.dart';
-import 'package:swiftdine_mobile/views/home_screen.dart';
 import 'package:swiftdine_mobile/views/register_screen.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class LoginScreen extends StatefulWidget {
   const LoginScreen({super.key});
@@ -44,26 +44,23 @@ class _LoginScreenState extends State<LoginScreen> {
     isLoading = false;
   });
 
-// print("Status Code: ${response.statusCode}");
-//  print("Response Body: ${response.body}");
-
   if (response.statusCode == 200) {
   final data = jsonDecode(response.body);
 
   if (data.containsKey('token')) {
-    // Store token if needed (for authenticated requests later)
- //   final token = data['token'];
-   // print("User logged in, token: $token");
+    final token = data['token'];
 
-    Navigator.pushReplacement(
-      context,
-      MaterialPageRoute(builder: (_) => const HomeScreen()),
-    );
-  } else {
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Login failed: No token received')),
-    );
-  }
+     // Save token locally
+  final prefs = await SharedPreferences.getInstance();
+  await prefs.setString('token', token);
+
+  Navigator.pushReplacementNamed(context, '/home');
+} else {
+  ScaffoldMessenger.of(context).showSnackBar(
+    const SnackBar(content: Text('Login failed: No token received')),
+  );
+}
+
 }
 
   }

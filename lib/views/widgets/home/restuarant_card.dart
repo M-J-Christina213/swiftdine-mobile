@@ -22,12 +22,15 @@ class RestaurantCard extends StatelessWidget {
   });
 
   factory RestaurantCard.fromJson(Map<String, dynamic> json, {bool compact = false}) {
+    // Replace host IP with emulator-friendly IP
+    String imageUrl = json['image_path'] != null
+        ? 'http://10.0.2.2:8000/storage/${json['image_path']}' // emulator fix
+        : 'assets/images/placeholder.png'; // local fallback
+
     return RestaurantCard(
       restaurantId: json['id'],
       name: json['name'] ?? 'Unknown',
-      image: json['image_path'] != null
-          ? 'http://127.0.0.1:8000/storage/${json['image_path']}'
-          : 'https://via.placeholder.com/150',
+      image: imageUrl,
       rating: (json['rating'] != null)
           ? double.tryParse(json['rating'].toString()) ?? 0.0
           : 0.0,
@@ -42,9 +45,11 @@ class RestaurantCard extends StatelessWidget {
     return GestureDetector(
       onTap: () => Navigator.push(
         context,
-        MaterialPageRoute(builder: (_) => RestaurantDetailScreen(
-          restaurantId: restaurantId,
-        )),
+        MaterialPageRoute(
+          builder: (_) => RestaurantDetailScreen(
+            restaurantId: restaurantId,
+          ),
+        ),
       ),
       child: Container(
         width: compact ? 160 : 240,
@@ -53,7 +58,11 @@ class RestaurantCard extends StatelessWidget {
           color: Colors.white,
           borderRadius: BorderRadius.circular(12),
           boxShadow: [
-            BoxShadow(color: Colors.grey.shade300, blurRadius: 6, offset: const Offset(0, 4)),
+            BoxShadow(
+              color: Colors.grey.shade300,
+              blurRadius: 6,
+              offset: const Offset(0, 4),
+            ),
           ],
         ),
         child: Column(
@@ -65,9 +74,22 @@ class RestaurantCard extends StatelessWidget {
               width: double.infinity,
               decoration: BoxDecoration(
                 borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
-                image: DecorationImage(
-                  image: NetworkImage(image),
+                color: Colors.grey[200],
+              ),
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(12)),
+                child: Image.network(
+                  image,
                   fit: BoxFit.cover,
+                  errorBuilder: (context, error, stackTrace) {
+                    return Center(
+                      child: Icon(
+                        Icons.broken_image,
+                        size: compact ? 30 : 50,
+                        color: Colors.grey.shade400,
+                      ),
+                    );
+                  },
                 ),
               ),
             ),
@@ -77,7 +99,10 @@ class RestaurantCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 8),
               child: Text(
                 name,
-                style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                style: const TextStyle(
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
               ),
@@ -88,7 +113,11 @@ class RestaurantCard extends StatelessWidget {
               padding: const EdgeInsets.symmetric(horizontal: 10),
               child: Row(
                 children: [
-                  Icon(Icons.star, color: Colors.orange.shade400, size: compact ? 14 : 16),
+                  Icon(
+                    Icons.star,
+                    color: Colors.orange.shade400,
+                    size: compact ? 14 : 16,
+                  ),
                   const SizedBox(width: 4),
                   Text(
                     rating.toStringAsFixed(1),
