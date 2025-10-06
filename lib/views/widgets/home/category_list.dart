@@ -90,7 +90,10 @@ class _CategoryListState extends State<CategoryList> {
 
           return GestureDetector(
             onTap: () {
-              // TODO: Navigate or filter menu items by category
+              
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Selected Category: $name')),
+              );
             },
             child: Card(
               elevation: 3,
