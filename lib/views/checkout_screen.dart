@@ -218,7 +218,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
 
   //================= ORDER API =================//
 
-  Future<void> _placeOrder(
+    Future<void> _placeOrder(
       double subtotal, double tax, double deliveryFee, double total) async {
     setState(() => isLoading = true);
     final cartProvider = Provider.of<CartProvider>(context, listen: false);
@@ -248,16 +248,20 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
         body: jsonEncode(orderData),
       );
 
-      if (!mounted) return; // ✅ safe context check
+      if (!mounted) return;
 
-      if (response.statusCode == 201) {
+      // Accept both 200 and 201 as success
+      if (response.statusCode == 200 || response.statusCode == 201) {
         cartProvider.clearCart();
         setState(() => isLoading = false);
         _showConfirmationDialog();
       } else {
         setState(() => isLoading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Failed to place order. Please try again.")),
+          SnackBar(
+            content: Text(
+                "Failed to place order. Status: ${response.statusCode}"),
+          ),
         );
       }
     } catch (e) {
@@ -268,6 +272,7 @@ class _CheckoutScreenState extends State<CheckoutScreen> {
       );
     }
   }
+
 
   void _showConfirmationDialog() {
     showDialog(

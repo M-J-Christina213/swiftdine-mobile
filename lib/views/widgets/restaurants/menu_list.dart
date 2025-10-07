@@ -20,41 +20,51 @@ class MenuList extends StatefulWidget {
 
 class _MenuListState extends State<MenuList> {
   late Future<List<MenuItem>> _futureMenus;
-  Map<int, int> quantities = {}; 
+  Map<int, int> quantities = {};
   final String apiBaseUrl = "http://10.0.2.2:8000/api";
+  final String imageBaseUrl = "http://10.0.2.2:8000/storage/";
 
   @override
   void initState() {
     super.initState();
-    _futureMenus = fetchMenusByCategory(); 
+    _futureMenus = fetchMenusByCategory();
   }
 
   Future<List<MenuItem>> fetchMenusByCategory() async {
-  final prefs = await SharedPreferences.getInstance();
-  final token = prefs.getString('token');
+    final prefs = await SharedPreferences.getInstance();
+    final token = prefs.getString('token');
 
-  if (token == null) {
-    throw Exception('User not logged in');
-  }
+    if (token == null) {
+      throw Exception('User not logged in');
+    }
 
-  final url = Uri.parse('$apiBaseUrl/categories/${widget.category}/menus');
-
-  final response = await http.get(
-    url,
-    headers: {
+    final categoryUrl = Uri.parse(
+        '$apiBaseUrl/categories/name/${Uri.encodeComponent(widget.category!)}');
+    final categoryRes = await http.get(categoryUrl, headers: {
       'Authorization': 'Bearer $token',
       'Accept': 'application/json',
-    },
-  );
+    });
 
-  if (response.statusCode == 200) {
-    final List data = jsonDecode(response.body);
-    return data.map((item) => MenuItem.fromJson(item)).toList();
-  } else {
-    throw Exception('Failed to load menu: ${response.statusCode}');
+    if (categoryRes.statusCode != 200) {
+      throw Exception('Failed to fetch category: ${categoryRes.statusCode}');
+    }
+
+    final categoryData = jsonDecode(categoryRes.body);
+    final categoryId = categoryData['id'];
+
+    final menuUrl = Uri.parse('$apiBaseUrl/categories/$categoryId/menus');
+    final menuRes = await http.get(menuUrl, headers: {
+      'Authorization': 'Bearer $token',
+      'Accept': 'application/json',
+    });
+
+    if (menuRes.statusCode == 200) {
+      final List data = jsonDecode(menuRes.body);
+      return data.map((item) => MenuItem.fromJson(item)).toList();
+    } else {
+      throw Exception('Failed to load menus: ${menuRes.statusCode}');
+    }
   }
-}
-
 
   void add(int id) {
     setState(() {
@@ -65,13 +75,9 @@ class _MenuListState extends State<MenuList> {
   void remove(int id) {
     final qty = quantities[id] ?? 0;
     if (qty > 1) {
-      setState(() {
-        quantities[id] = qty - 1;
-      });
+      setState(() => quantities[id] = qty - 1);
     } else {
-      setState(() {
-        quantities.remove(id);
-      });
+      setState(() => quantities.remove(id));
     }
   }
 
@@ -91,24 +97,27 @@ class _MenuListState extends State<MenuList> {
         }
 
         final menus = snapshot.data!;
-        return ListView(
+        return ListView.builder(
           padding: const EdgeInsets.symmetric(vertical: 8),
-          children: [
-            if (widget.category != null)
-              Padding(
+          itemCount: menus.length + (widget.category != null ? 1 : 0),
+          itemBuilder: (context, index) {
+            if (widget.category != null && index == 0) {
+              return Padding(
                 padding: const EdgeInsets.all(16),
                 child: Text("${widget.category!} Menu",
                     style: theme.textTheme.headlineSmall),
-              ),
-            ...menus.map((item) => buildMenuItemCard(item, theme)),
-          ],
+              );
+            }
+            final item = menus[widget.category != null ? index - 1 : index];
+            return buildMenuItemCard(item, theme);
+          },
         );
       },
     );
   }
 
   Widget buildMenuItemCard(MenuItem item, ThemeData theme) {
-    final int itemId = int.tryParse(item.id) ?? 0; // convert String id → int
+    final int itemId = int.tryParse(item.id) ?? 0;
     final qty = quantities[itemId] ?? 0;
 
     return Card(
@@ -123,10 +132,18 @@ class _MenuListState extends State<MenuList> {
             ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: Image.network(
-                item.imagePath,
+                imageBaseUrl + item.imagePath,
                 width: 100,
                 height: 100,
                 fit: BoxFit.cover,
+                errorBuilder: (context, error, stackTrace) {
+                  return Container(
+                    width: 100,
+                    height: 100,
+                    color: Colors.grey.shade300,
+                    child: const Icon(Icons.broken_image, color: Colors.grey),
+                  );
+                },
               ),
             ),
             const SizedBox(width: 14),
@@ -134,20 +151,29 @@ class _MenuListState extends State<MenuList> {
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Text(item.name,
-                      style: theme.textTheme.titleLarge
-                          ?.copyWith(fontWeight: FontWeight.bold)),
+                  SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Text(item.name,
+                        style: theme.textTheme.titleLarge
+                            ?.copyWith(fontWeight: FontWeight.bold)),
+                  ),
                   const SizedBox(height: 4),
                   Text(item.description,
                       style: theme.textTheme.bodyMedium,
-                      maxLines: 2,
+                      maxLines: 3,
                       overflow: TextOverflow.ellipsis),
                   const SizedBox(height: 6),
                   Text("Rating: ${item.rating} ★",
                       style: TextStyle(color: Colors.orange.shade800)),
-                  Text("From: ${item.featuredRestaurants.join(", ")}",
-                      style: theme.textTheme.bodySmall
-                          ?.copyWith(color: Colors.blueGrey)),
+                  if (item.featuredRestaurants.isNotEmpty)
+                    SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Text(
+                        "From: ${item.featuredRestaurants.join(", ")}",
+                        style: theme.textTheme.bodySmall
+                            ?.copyWith(color: Colors.blueGrey),
+                      ),
+                    ),
                   const SizedBox(height: 10),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -155,8 +181,8 @@ class _MenuListState extends State<MenuList> {
                       Row(
                         children: [
                           Text("Rs ${item.price.toStringAsFixed(2)}",
-                              style: theme.textTheme.titleMedium?.copyWith(
-                                  color: Colors.deepOrangeAccent)),
+                              style: theme.textTheme.titleMedium
+                                  ?.copyWith(color: Colors.deepOrangeAccent)),
                           const SizedBox(width: 12),
                           buildQuantityControls(item, theme, itemId),
                         ],
