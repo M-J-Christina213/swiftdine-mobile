@@ -181,13 +181,13 @@ final List<Map<String, String>> categories = const [
                         children: [
                           Hero(
                             tag: cat['title']!,
-                            child: Image.network(
+                            child: Image.asset(
                               cat['image']!,
                               fit: BoxFit.cover,
-                              errorBuilder: (_, __, ___) =>
-                                  const Icon(Icons.image_not_supported),
+                              errorBuilder: (_, __, ___) => const Icon(Icons.image_not_supported),
                             ),
                           ),
+
                           Container(
                             color: Colors.black26,
                             alignment: Alignment.center,

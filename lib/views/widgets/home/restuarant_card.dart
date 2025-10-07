@@ -22,9 +22,10 @@ class RestaurantCard extends StatelessWidget {
   });
 
   factory RestaurantCard.fromJson(Map<String, dynamic> json, {bool compact = false}) {
-    // Replace host IP with emulator-friendly IP
-    String imageUrl = json['image_path'] != null
-        ? 'http://10.0.2.2:8000/storage/${json['image_path']}' // emulator fix
+    // Use the exact path from API, supporting jpg, webp, or any format
+    final imagePath = json['image_path'];
+    final imageUrl = (imagePath != null && imagePath.isNotEmpty)
+        ? 'http://10.0.2.2:8000/storage/$imagePath' // emulator-friendly
         : 'assets/images/placeholder.png'; // local fallback
 
     return RestaurantCard(
@@ -46,9 +47,7 @@ class RestaurantCard extends StatelessWidget {
       onTap: () => Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => RestaurantDetailScreen(
-            restaurantId: restaurantId,
-          ),
+          builder: (_) => RestaurantDetailScreen(restaurantId: restaurantId),
         ),
       ),
       child: Container(
@@ -87,6 +86,17 @@ class RestaurantCard extends StatelessWidget {
                         Icons.broken_image,
                         size: compact ? 30 : 50,
                         color: Colors.grey.shade400,
+                      ),
+                    );
+                  },
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                                (loadingProgress.expectedTotalBytes ?? 1)
+                            : null,
                       ),
                     );
                   },

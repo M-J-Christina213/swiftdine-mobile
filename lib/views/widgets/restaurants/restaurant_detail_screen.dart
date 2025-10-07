@@ -55,13 +55,34 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                       // Restaurant Banner
                       Stack(
                         children: [
-                          Image.network(
-                            restaurant.image.isNotEmpty
-                                ? restaurant.image
-                                : 'https://via.placeholder.com/600x200',
+                          SizedBox(
                             width: double.infinity,
                             height: 200,
-                            fit: BoxFit.cover,
+                            child: ClipRRect(
+                              borderRadius: const BorderRadius.vertical(
+                                  bottom: Radius.circular(0)),
+                              child: Image.network(
+                                restaurant.image.isNotEmpty
+                                    ? restaurant.image
+                                    : 'https://via.placeholder.com/600x200',
+                                width: double.infinity,
+                                height: 200,
+                                fit: BoxFit.cover,
+                                loadingBuilder: (context, child, loadingProgress) {
+                                  if (loadingProgress == null) return child;
+                                  return const Center(child: CircularProgressIndicator());
+                                },
+                                errorBuilder: (context, error, stackTrace) {
+                                  return Image.network(
+                                    'https://via.placeholder.com/600x200',
+                                    width: double.infinity,
+                                    height: 200,
+                                    fit: BoxFit.cover,
+                                  );
+                                },
+                              )
+
+                            ),
                           ),
                           Positioned(
                             bottom: 16,
@@ -120,7 +141,7 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                                 initialCameraPosition: CameraPosition(
                                   target: LatLng(
                                       restaurant.latitude, restaurant.longitude),
-                                  zoom: 15,
+                                  zoom: 16,
                                 ),
                                 markers: {
                                   Marker(
@@ -133,7 +154,8 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                                         InfoWindow(title: restaurant.name),
                                   ),
                                 },
-                                zoomControlsEnabled: false,
+                                zoomControlsEnabled: true,
+                                myLocationButtonEnabled: false,
                               ),
                             ),
                             const SizedBox(height: 16),
@@ -158,7 +180,8 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                           children: [
                             Row(
                               children: const [
-                                Icon(Icons.table_restaurant, color: Colors.orange),
+                                Icon(Icons.table_restaurant,
+                                    color: Colors.orange),
                                 SizedBox(width: 8),
                                 Text("Dine-in Preview",
                                     style: TextStyle(
@@ -222,7 +245,6 @@ class _RestaurantDetailScreenState extends State<RestaurantDetailScreen> {
                                                   Text(e),
                                                 ],
                                               ))
-                                          
                                     ],
                                   ),
                                 )
