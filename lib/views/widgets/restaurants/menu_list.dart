@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
 import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../models/menu_item.dart';
 import '../../../models/cart_item.dart';
 import '../../providers/cart_provider.dart';
@@ -19,36 +20,41 @@ class MenuList extends StatefulWidget {
 
 class _MenuListState extends State<MenuList> {
   late Future<List<MenuItem>> _futureMenus;
-
   Map<int, int> quantities = {}; 
-
   final String apiBaseUrl = "http://10.0.2.2:8000/api";
 
   @override
   void initState() {
     super.initState();
-    _futureMenus = fetchMenus();
+    _futureMenus = fetchMenusByCategory(); 
   }
 
-  Future<List<MenuItem>> fetchMenus() async {
-    final url = widget.restaurantId != null
-        ? Uri.parse('$apiBaseUrl/restaurants/${widget.restaurantId}/menu')
-        : Uri.parse('$apiBaseUrl/menus');
+  Future<List<MenuItem>> fetchMenusByCategory() async {
+  final prefs = await SharedPreferences.getInstance();
+  final token = prefs.getString('token');
 
-    final response = await http.get(url);
-
-    if (response.statusCode == 200) {
-      final List data = jsonDecode(response.body);
-      return data
-          .map((item) => MenuItem.fromJson(item))
-          .toList()
-          .where((item) =>
-              widget.category == null || item.category == widget.category)
-          .toList();
-    } else {
-      throw Exception('Failed to load menu');
-    }
+  if (token == null) {
+    throw Exception('User not logged in');
   }
+
+  final url = Uri.parse('$apiBaseUrl/categories/${widget.category}/menus');
+
+  final response = await http.get(
+    url,
+    headers: {
+      'Authorization': 'Bearer $token',
+      'Accept': 'application/json',
+    },
+  );
+
+  if (response.statusCode == 200) {
+    final List data = jsonDecode(response.body);
+    return data.map((item) => MenuItem.fromJson(item)).toList();
+  } else {
+    throw Exception('Failed to load menu: ${response.statusCode}');
+  }
+}
+
 
   void add(int id) {
     setState(() {
